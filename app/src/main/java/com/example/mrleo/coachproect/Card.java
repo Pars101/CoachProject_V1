@@ -80,7 +80,7 @@ public class Card {
 
     public void addImage(Uri image){
         imageIndex++;
-        imageList.add(imageIndex, image);
+        imageList.add(imageIndex, image); //comments
     }
 
     public Uri removeImage(){
