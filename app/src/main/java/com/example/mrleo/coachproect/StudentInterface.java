@@ -1,11 +1,18 @@
 package com.example.mrleo.coachproect;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -17,8 +24,8 @@ public class StudentInterface extends AppCompatActivity {
     private static ImageView imageView;
     private static MediaPlayer mp;
     private static TextView textView;
-    private static int currentIndex = 0;
-    private CountDownTimer countDownTimer;
+    private static int currentIndex;
+    private static boolean timerIsActive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,22 +35,27 @@ public class StudentInterface extends AppCompatActivity {
         Button leftButton = findViewById(R.id.buttonLeft);
         Button rightButton = findViewById(R.id.buttonRight);
         Button nextButton = findViewById(R.id.nextButton);
-        Button cancelButton = findViewById(R.id.buttonCancel);
+        final Button cancelButton = findViewById(R.id.buttonCancel);
         imageView = (ImageView)findViewById(R.id.imageInstructions);
         textView = (TextView)findViewById(R.id.textInstructions);
         mp = MediaPlayer.create(this, R.raw.ding);
+        currentIndex = 0;
+
+        for(int i = 0; i < EnterProgram.getCardSetLength(); i++){
+            EnterProgram.getCard(i).setImageIndex(0);
+        }
 
         if(EnterProgram.getCard(currentIndex).getFirstImage() != null) {
-            EnterProgram.getCard(currentIndex).setImageIndex(0);
             imageView.setImageURI(EnterProgram.getCard(currentIndex).getFirstImage());
         }
         else {
             imageView.setImageResource(R.drawable.placeholder);
         }
+
         textView.setText(EnterProgram.getCard(currentIndex).getMessage());
 
         if(EnterProgram.getCard(currentIndex).getSeconds() != 0) {
-            startTimer();
+            setAlarm(EnterProgram.getCard(currentIndex).getSeconds() * 1000);
         }
 
         leftButton.setOnClickListener(new View.OnClickListener() {
@@ -74,7 +86,6 @@ public class StudentInterface extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(currentIndex < EnterProgram.getCardSetLength() - 1) {
-                    countDownTimer.cancel();
                     currentIndex++;
                     if (EnterProgram.getCard(currentIndex).getFirstImage() != null) {
                         imageView.setImageURI(EnterProgram.getCard(currentIndex).getFirstImage());
@@ -83,7 +94,8 @@ public class StudentInterface extends AppCompatActivity {
                     }
                     textView.setText(EnterProgram.getCard(currentIndex).getMessage());
                     if (EnterProgram.getCard(currentIndex).getSeconds() != 0) {
-                        startTimer();
+                        cancelAlarm();
+                        setAlarm(EnterProgram.getCard(currentIndex).getSeconds() * 1000);
                     }
                 }
             }
@@ -92,22 +104,42 @@ public class StudentInterface extends AppCompatActivity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Maybedue to change. Currently, it resets the order every time you exit.
+                //Maybe; due to change. Currently, it resets the order every time you exit.
+                cancelAlarm();
                 currentIndex = 0;
                 finish();
             }
         });
     }
 
-    private void startTimer(){
-        countDownTimer = new CountDownTimer(EnterProgram.getCard(currentIndex).getSeconds() * 1000, 1000) {
-            @Override
-            public void onTick(long l) {
-            }
-            @Override
-            public void onFinish() {
-                mp.start();
-            }
-        }.start();
+    private void setAlarm(int milliseconds){
+        Log.i("Set", "Setting");
+        Log.i("Milliseconds", milliseconds + "");
+        EnterProgram.setCurrentIndex(StudentInterface.currentIndex);
+        StudentInterface.timerIsActive = true;
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, Alarm.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,1, intent, 0);
+
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + milliseconds, pendingIntent);
+    }
+
+    private void cancelAlarm(){
+        Log.i("Canceled", "Canceling");
+        StudentInterface.timerIsActive = false;
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, Alarm.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,1, intent, 0);
+
+        //fix this
+        alarmManager.cancel(pendingIntent);
+    }
+
+    public static void setCurrentIndex(int currentIndex){
+        StudentInterface.currentIndex = currentIndex;
+    }
+
+    public static boolean getTimerIsActive(){
+        return timerIsActive;
     }
 }

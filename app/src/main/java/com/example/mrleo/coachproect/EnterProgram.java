@@ -1,12 +1,24 @@
 package com.example.mrleo.coachproect;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InvalidClassException;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class EnterProgram extends AppCompatActivity {
@@ -15,6 +27,7 @@ public class EnterProgram extends AppCompatActivity {
     private static Intent editIntent;
     private static Intent enterIntent;
     private static ArrayList<Card> cardSet = new ArrayList<>();
+    private static int currentIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +35,8 @@ public class EnterProgram extends AppCompatActivity {
         setContentView(R.layout.activity_enter_program);
 
         enterIntent = new Intent(this, EnterProgram.class);
+
+        readCardSet(this.getApplicationContext());
 
         Button buttonStart = findViewById(R.id.buttonEnterProgram);
         Button buttonEdit = findViewById(R.id.buttonEditProgram);
@@ -39,6 +54,11 @@ public class EnterProgram extends AppCompatActivity {
                 createCoachInterface();
             }
         });
+
+        if(StudentInterface.getTimerIsActive()){
+            StudentInterface.setCurrentIndex(EnterProgram.currentIndex);
+            createStudentInterface();
+        }
     }
 
     private void createStudentInterface()
@@ -64,7 +84,41 @@ public class EnterProgram extends AppCompatActivity {
         return cardSet.get(i);
     }
 
+    public static void setCardSet(Context context){
+        try {
+            FileOutputStream fout = context.openFileOutput("cardFile.txt", Context.MODE_PRIVATE);
+            ObjectOutputStream oos = new ObjectOutputStream(fout);
+            oos.writeObject(cardSet);
+            oos.close();
+            fout.close();
+        } catch(NotSerializableException e){
+            Log.i("Not Serializable", e.getMessage());
+        } catch(InvalidClassException e){
+            Log.i("Invalid Class", e.getMessage());
+        } catch(IOException e){
+            Log.i("IO Class", e.getMessage());
+        }
+    }
+
+    public static void readCardSet(Context context){
+        try {
+            FileInputStream fis = context.openFileInput("cardFile.txt");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            cardSet = (ArrayList) ois.readObject();
+            ois.close();
+            fis.close();
+        } catch (IOException e) {
+            Log.i("IOExceptionCardSet", e.getMessage());
+        } catch (ClassNotFoundException e) {
+            Log.i("ClassNotFound", e.getMessage());
+        }
+    }
+
     public static Integer getCardSetLength(){
         return cardSet.size();
+    }
+
+    public static void setCurrentIndex(int currentIndex){
+        EnterProgram.currentIndex = currentIndex;
     }
 }

@@ -3,9 +3,10 @@ package com.example.mrleo.coachproect;
 import android.net.Uri;
 import android.util.Log;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Card {
+public class Card implements Serializable{
     private String message = new String();
     private ArrayList<Uri> imageList = new ArrayList<>();
     private Integer seconds = new Integer(0);
@@ -80,7 +81,7 @@ public class Card {
 
     public void addImage(Uri image){
         imageIndex++;
-        imageList.add(imageIndex, image); //comments
+        imageList.add(imageIndex, image);
     }
 
     public Uri removeImage(){

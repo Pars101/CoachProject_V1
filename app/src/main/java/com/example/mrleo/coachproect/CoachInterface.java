@@ -1,6 +1,7 @@
 package com.example.mrleo.coachproect;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class CoachInterface extends AppCompatActivity {
@@ -32,16 +34,12 @@ public class CoachInterface extends AppCompatActivity {
         Button nextButton = findViewById(R.id.nextButton);
         Button backButton = findViewById(R.id.backButton);
         Button cancelButton = findViewById(R.id.cancelButton);
+        Button saveButton = findViewById(R.id.saveButton);
 
         final EditText timeOne = findViewById(R.id.timeOne);
         final EditText timeTwo = findViewById(R.id.timeTwo);
         final EditText currentMessage = findViewById(R.id.editText);
-        /*
-        currentCard = EnterProgram.getCard(currentIndex);
-        currentMessage.setText(currentCard.getMessage());
-        timeOne.setText(String.valueOf(currentCard.getSeconds()/60));
-        timeTwo.setText(String.valueOf(currentCard.getSeconds()%60));
-        */
+
         currentMessage.setText(EnterProgram.getCard(currentIndex).getMessage());
         timeOne.setText(String.valueOf(EnterProgram.getCard(currentIndex).getSeconds()/60));
         timeTwo.setText(String.valueOf(EnterProgram.getCard(currentIndex).getSeconds()%60));
@@ -98,6 +96,16 @@ public class CoachInterface extends AppCompatActivity {
                 EnterProgram.getCard(currentIndex).setSeconds(Integer.parseInt(timeOne.getText().toString())*60 + Integer.parseInt(timeTwo.getText().toString()));
                 currentIndex = 0;
                 finish();
+            }
+        });
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EnterProgram.getCard(currentIndex).setMessage(currentMessage.getText().toString());
+                EnterProgram.getCard(currentIndex).setSeconds(Integer.parseInt(timeOne.getText().toString())*60 + Integer.parseInt(timeTwo.getText().toString()));
+
+                EnterProgram.setCardSet(getApplicationContext());
             }
         });
     }

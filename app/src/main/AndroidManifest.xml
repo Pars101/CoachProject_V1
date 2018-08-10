@@ -24,6 +24,12 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".CoachInterface" />
         <activity android:name=".PictureEdit"></activity>
+
+        <receiver
+            android:name="com.example.mrleo.coachproect.Alarm"
+            android:enabled="true"
+            android:exported="true">
+        </receiver>
     </application>
 
 </manifest>
