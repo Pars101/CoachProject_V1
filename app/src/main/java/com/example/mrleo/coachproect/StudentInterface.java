@@ -119,7 +119,7 @@ public class StudentInterface extends AppCompatActivity {
         StudentInterface.timerIsActive = true;
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, Alarm.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,1, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),1, intent, 0);
 
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + milliseconds, pendingIntent);
     }
@@ -129,9 +129,8 @@ public class StudentInterface extends AppCompatActivity {
         StudentInterface.timerIsActive = false;
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, Alarm.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,1, intent, 0);
-
-        //fix this
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),1, intent, 0);
+        
         alarmManager.cancel(pendingIntent);
     }
 
