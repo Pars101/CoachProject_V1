@@ -130,7 +130,7 @@ public class StudentInterface extends AppCompatActivity {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, Alarm.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),1, intent, 0);
-        
+
         alarmManager.cancel(pendingIntent);
     }
 
