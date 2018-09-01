@@ -30,6 +30,8 @@ public class CoachInterface extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_coach_interface);
 
+        EnterProgram.getCard(0).setIsInStudentInterface(false);
+
         Button editPictures = findViewById(R.id.editPictures);
         Button nextButton = findViewById(R.id.nextButton);
         Button backButton = findViewById(R.id.backButton);

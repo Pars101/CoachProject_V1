@@ -25,12 +25,13 @@ public class StudentInterface extends AppCompatActivity {
     private static MediaPlayer mp;
     private static TextView textView;
     private static int currentIndex;
-    private static boolean timerIsActive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_interface);
+
+        EnterProgram.getCard(0).setIsInStudentInterface(true);
 
         Button leftButton = findViewById(R.id.buttonLeft);
         Button rightButton = findViewById(R.id.buttonRight);
@@ -39,7 +40,10 @@ public class StudentInterface extends AppCompatActivity {
         imageView = (ImageView)findViewById(R.id.imageInstructions);
         textView = (TextView)findViewById(R.id.textInstructions);
         mp = MediaPlayer.create(this, R.raw.ding);
-        currentIndex = 0;
+
+        currentIndex = EnterProgram.getCard(0).getCurrentIndex();
+
+        saveCardSet();
 
         for(int i = 0; i < EnterProgram.getCardSetLength(); i++){
             EnterProgram.getCard(i).setImageIndex(0);
@@ -54,7 +58,10 @@ public class StudentInterface extends AppCompatActivity {
 
         textView.setText(EnterProgram.getCard(currentIndex).getMessage());
 
-        if(EnterProgram.getCard(currentIndex).getSeconds() != 0) {
+        Log.i("HasSeconds", (EnterProgram.getCard(currentIndex).getSeconds() != 0) + "");
+        Log.i("PendingIntent", "" + (EnterProgram.getCard(currentIndex).getAlarmHasAlreadyPlayed() == false));
+
+        if(EnterProgram.getCard(currentIndex).getSeconds() != 0 && EnterProgram.getCard(currentIndex).getAlarmHasAlreadyPlayed() == false) {
             setAlarm(EnterProgram.getCard(currentIndex).getSeconds() * 1000);
         }
 
@@ -98,25 +105,32 @@ public class StudentInterface extends AppCompatActivity {
                         setAlarm(EnterProgram.getCard(currentIndex).getSeconds() * 1000);
                     }
                 }
+                saveCardSet();
             }
         });
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Maybe; due to change. Currently, it resets the order every time you exit.
                 cancelAlarm();
+                EnterProgram.getCard(0).setIsInStudentInterface(false);
+                EnterProgram.getCard(0).setCurrentIndex(0);
+                for(int i = 0; i < currentIndex + 1; i++){
+                    EnterProgram.getCard(i).setAlarmHasAlreadyPlayed(false);
+                }
                 currentIndex = 0;
+                saveCardSet();
                 finish();
             }
         });
     }
 
     private void setAlarm(int milliseconds){
+        EnterProgram.getCard(currentIndex).setAlarmHasAlreadyPlayed(true);
+        saveCardSet();
         Log.i("Set", "Setting");
         Log.i("Milliseconds", milliseconds + "");
         EnterProgram.setCurrentIndex(StudentInterface.currentIndex);
-        StudentInterface.timerIsActive = true;
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, Alarm.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),1, intent, 0);
@@ -126,7 +140,6 @@ public class StudentInterface extends AppCompatActivity {
 
     private void cancelAlarm(){
         Log.i("Canceled", "Canceling");
-        StudentInterface.timerIsActive = false;
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, Alarm.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),1, intent, 0);
@@ -138,7 +151,12 @@ public class StudentInterface extends AppCompatActivity {
         StudentInterface.currentIndex = currentIndex;
     }
 
-    public static boolean getTimerIsActive(){
-        return timerIsActive;
+    public static int getCurrentIndex(){
+        return currentIndex;
+    }
+
+    private void saveCardSet(){
+        EnterProgram.getCard(0).setCurrentIndex(currentIndex);
+        EnterProgram.setCardSet(getApplicationContext());
     }
 }

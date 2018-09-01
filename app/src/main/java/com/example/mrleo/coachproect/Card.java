@@ -12,6 +12,10 @@ public class Card implements Serializable{
     private Integer seconds = new Integer(0);
     private int imageIndex = -1;
 
+    private boolean isInStudentInterface = false;
+    private int currentIndex = 0;
+    private boolean alarmHasAlreadyPlayed = false;
+
     public Card(String message, Integer seconds){
         this.message = message;
         this.seconds = seconds;
@@ -98,5 +102,29 @@ public class Card implements Serializable{
 
     public void setImageIndex(int index){
         this.imageIndex = index;
+    }
+
+    public void setIsInStudentInterface(boolean newIsInStudentInterface){
+        isInStudentInterface = newIsInStudentInterface;
+    }
+
+    public boolean getIsInStudentInterface(){
+        return isInStudentInterface;
+    }
+
+    public void setCurrentIndex(int newCurrentIndex){
+        currentIndex = newCurrentIndex;
+    }
+
+    public int getCurrentIndex(){
+        return currentIndex;
+    }
+
+    public void setAlarmHasAlreadyPlayed(boolean alarmHasAlreadyPlayed){
+        this.alarmHasAlreadyPlayed = alarmHasAlreadyPlayed;
+    }
+
+    public boolean getAlarmHasAlreadyPlayed(){
+        return alarmHasAlreadyPlayed;
     }
 }

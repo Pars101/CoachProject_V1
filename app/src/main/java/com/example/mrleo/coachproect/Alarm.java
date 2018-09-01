@@ -26,5 +26,7 @@ public class Alarm extends BroadcastReceiver{
         MediaPlayer player = MediaPlayer.create(context, Settings.System.DEFAULT_RINGTONE_URI);
         Log.i("Alarm", "IT'S WORKING OH MY GOD YES");
         player.start();
+
+        EnterProgram.getCard(StudentInterface.getCurrentIndex()).setAlarmHasAlreadyPlayed(true);
     }
 }

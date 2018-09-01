@@ -38,6 +38,8 @@ public class EnterProgram extends AppCompatActivity {
 
         readCardSet(this.getApplicationContext());
 
+        Log.i("Hey", EnterProgram.getCard(0).getIsInStudentInterface() + "");
+
         Button buttonStart = findViewById(R.id.buttonEnterProgram);
         Button buttonEdit = findViewById(R.id.buttonEditProgram);
 
@@ -55,10 +57,11 @@ public class EnterProgram extends AppCompatActivity {
             }
         });
 
-        if(StudentInterface.getTimerIsActive()){
-            StudentInterface.setCurrentIndex(EnterProgram.currentIndex);
-            createStudentInterface();
+        if(EnterProgram.getCard(0).getIsInStudentInterface()){
+            resumeTask();
         }
+
+        EnterProgram.getCard(0).setIsInStudentInterface(false);
     }
 
     private void createStudentInterface()
@@ -85,6 +88,7 @@ public class EnterProgram extends AppCompatActivity {
     }
 
     public static void setCardSet(Context context){
+        Log.i("Setting", EnterProgram.getCard(0).getIsInStudentInterface() + "");
         try {
             FileOutputStream fout = context.openFileOutput("cardFile.txt", Context.MODE_PRIVATE);
             ObjectOutputStream oos = new ObjectOutputStream(fout);
@@ -112,6 +116,7 @@ public class EnterProgram extends AppCompatActivity {
         } catch (ClassNotFoundException e) {
             Log.i("ClassNotFound", e.getMessage());
         }
+        Log.i("Reading", EnterProgram.getCard(0).getIsInStudentInterface() + "");
     }
 
     public static Integer getCardSetLength(){
@@ -120,5 +125,11 @@ public class EnterProgram extends AppCompatActivity {
 
     public static void setCurrentIndex(int currentIndex){
         EnterProgram.currentIndex = currentIndex;
+    }
+
+    public void resumeTask(){
+        Log.i("Resuming", "Resume");
+        StudentInterface.setCurrentIndex(EnterProgram.getCard(0).getCurrentIndex());
+        this.createStudentInterface();
     }
 }
