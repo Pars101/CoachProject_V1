@@ -4,9 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
 import android.provider.Settings;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -28,11 +34,31 @@ public class EnterProgram extends AppCompatActivity {
     private static Intent enterIntent;
     private static ArrayList<Card> cardSet = new ArrayList<>();
     private static int currentIndex;
+    private DrawerLayout mDrawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_enter_program);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+
+        navigationView.setNavigationItemSelectedListener(
+            new NavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(MenuItem menuItem) {
+                    mDrawerLayout.closeDrawers();
+                    createCoachInterface();
+                    return true;
+                }
+            });
 
         enterIntent = new Intent(this, EnterProgram.class);
 
@@ -41,19 +67,11 @@ public class EnterProgram extends AppCompatActivity {
         Log.i("Hey", EnterProgram.getCard(0).getIsInStudentInterface() + "");
 
         Button buttonStart = findViewById(R.id.buttonEnterProgram);
-        Button buttonEdit = findViewById(R.id.buttonEditProgram);
 
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 createStudentInterface();
-            }
-        });
-
-        buttonEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createCoachInterface();
             }
         });
 
@@ -131,5 +149,15 @@ public class EnterProgram extends AppCompatActivity {
         Log.i("Resuming", "Resume");
         StudentInterface.setCurrentIndex(EnterProgram.getCard(0).getCurrentIndex());
         this.createStudentInterface();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
