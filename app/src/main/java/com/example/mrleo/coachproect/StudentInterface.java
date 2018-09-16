@@ -6,6 +6,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,6 +20,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class StudentInterface extends AppCompatActivity {
@@ -50,7 +54,7 @@ public class StudentInterface extends AppCompatActivity {
         }
 
         if(EnterProgram.getCard(currentIndex).getFirstImage() != null) {
-            imageView.setImageURI(EnterProgram.getCard(currentIndex).getFirstImage());
+            setImage(EnterProgram.getCard(currentIndex).getFirstImage());
         }
         else {
             imageView.setImageResource(R.drawable.placeholder);
@@ -72,7 +76,7 @@ public class StudentInterface extends AppCompatActivity {
                     imageView.setImageResource(R.drawable.placeholder);
                 }
                 else{
-                    imageView.setImageURI(EnterProgram.getCard(currentIndex).getPrevImage());
+                    setImage(EnterProgram.getCard(currentIndex).getPrevImage());
                 }
             }
         });
@@ -84,7 +88,7 @@ public class StudentInterface extends AppCompatActivity {
                     imageView.setImageResource(R.drawable.placeholder);
                 }
                 else{
-                    imageView.setImageURI(EnterProgram.getCard(currentIndex).getNextImage());
+                    setImage(EnterProgram.getCard(currentIndex).getNextImage());
                 }
             }
         });
@@ -95,7 +99,7 @@ public class StudentInterface extends AppCompatActivity {
                 if(currentIndex < EnterProgram.getCardSetLength() - 1) {
                     currentIndex++;
                     if (EnterProgram.getCard(currentIndex).getFirstImage() != null) {
-                        imageView.setImageURI(EnterProgram.getCard(currentIndex).getFirstImage());
+                        setImage(EnterProgram.getCard(currentIndex).getFirstImage());
                     } else {
                         imageView.setImageResource(R.drawable.placeholder);
                     }
@@ -158,5 +162,17 @@ public class StudentInterface extends AppCompatActivity {
     private void saveCardSet(){
         EnterProgram.getCard(0).setCurrentIndex(currentIndex);
         EnterProgram.setCardSet(getApplicationContext());
+    }
+
+    private void setImage(Uri uri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 2;
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
+            imageView.setImageBitmap(bitmap);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -20,6 +22,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class PictureEdit extends AppCompatActivity {
@@ -47,7 +51,7 @@ public class PictureEdit extends AppCompatActivity {
             imageView.setImageResource(R.drawable.placeholder);
             currentCard.setImageIndex(-1);
         } else {
-            imageView.setImageURI(currentCard.getFirstImage());
+            setImage(currentCard.getFirstImage());
         }
 
         leftButton.setOnClickListener(new View.OnClickListener() {
@@ -57,7 +61,7 @@ public class PictureEdit extends AppCompatActivity {
                     imageView.setImageResource(R.drawable.placeholder);
                 }
                 else{
-                    imageView.setImageURI(currentCard.getPrevImage());
+                    setImage(currentCard.getPrevImage());
                 }
             }
         });
@@ -69,7 +73,7 @@ public class PictureEdit extends AppCompatActivity {
                     imageView.setImageResource(R.drawable.placeholder);
                 }
                 else{
-                    imageView.setImageURI(currentCard.getNextImage());
+                    setImage(currentCard.getNextImage());
                 }
             }
         });
@@ -79,7 +83,7 @@ public class PictureEdit extends AppCompatActivity {
             public void onClick(View view) {
                 Uri temp = currentCard.removeImage();
                 if(temp != null) {
-                    imageView.setImageURI(temp);
+                    setImage(temp);
                 }
                 else {
                     imageView.setImageResource(R.drawable.placeholder);
@@ -112,9 +116,20 @@ public class PictureEdit extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == Activity.RESULT_OK && requestCode == PICK_IMAGE){
             imageUri = data.getData();
-            imageView.setImageURI(imageUri);
+            setImage(imageUri);
             currentCard.addImage(data.getData());
         }
     }
 
+    private void setImage(Uri uri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 2;
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
+            imageView.setImageBitmap(bitmap);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 }
