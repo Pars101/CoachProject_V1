@@ -6,6 +6,7 @@
 
     <application
         android:allowBackup="true"
+        android:name=".MainApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="Coach Project"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -35,5 +36,4 @@
             android:exported="true">
         </receiver>
     </application>
-
 </manifest>

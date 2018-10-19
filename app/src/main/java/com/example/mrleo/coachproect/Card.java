@@ -21,6 +21,20 @@ public class Card implements Serializable{
         this.seconds = seconds;
     }
 
+    public Card(String message, ArrayList<Uri> imageList, Integer seconds) {
+        this.message = message;
+        this.imageList = imageList;
+        this.seconds = seconds;
+    }
+
+    public ArrayList<Uri> getImageList() {
+        return imageList;
+    }
+
+    public void setImageList(ArrayList<Uri> imageList) {
+        this.imageList = imageList;
+    }
+
     public String getMessage(){
         return message;
     }

@@ -2,8 +2,6 @@ package com.example.mrleo.coachproect;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Environment;
-import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,17 +21,15 @@ import java.io.InvalidClassException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class EnterProgram extends AppCompatActivity {
 
     private static Intent studentIntent;
     private static Intent editIntent;
-    private static Intent enterIntent;
     private static ArrayList<Card> cardSet = new ArrayList<>();
     private static int currentIndex;
-    private DrawerLayout mDrawerLayout;
+    private DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,27 +42,19 @@ public class EnterProgram extends AppCompatActivity {
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
-        mDrawerLayout = findViewById(R.id.drawer_layout);
+        drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
-
         navigationView.setNavigationItemSelectedListener(
             new NavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(MenuItem menuItem) {
-                    mDrawerLayout.closeDrawers();
+                    drawerLayout.closeDrawers();
                     createCoachInterface();
                     return true;
                 }
             });
 
-        enterIntent = new Intent(this, EnterProgram.class);
-
-        readCardSet(this.getApplicationContext());
-
-        Log.i("Hey", EnterProgram.getCard(0).getIsInStudentInterface() + "");
-
         Button buttonStart = findViewById(R.id.buttonEnterProgram);
-
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -75,11 +62,19 @@ public class EnterProgram extends AppCompatActivity {
             }
         });
 
+        //readCardSet(this.getApplicationContext());
+
+        //Log.i("Hey", EnterProgram.getCard(0).getIsInStudentInterface() + "");
+
+
+
+        /*
         if(EnterProgram.getCard(0).getIsInStudentInterface()){
             resumeTask();
         }
 
         EnterProgram.getCard(0).setIsInStudentInterface(false);
+        */
     }
 
     private void createStudentInterface()
@@ -94,6 +89,7 @@ public class EnterProgram extends AppCompatActivity {
         startActivity(editIntent);
     }
 
+    /*
     public static void addCard(Card card){
         cardSet.add(card);
     }
@@ -105,7 +101,7 @@ public class EnterProgram extends AppCompatActivity {
         return cardSet.get(i);
     }
 
-    public static void setCardSet(Context context){
+    public static void saveCardSet(Context context){
         Log.i("Setting", EnterProgram.getCard(0).getIsInStudentInterface() + "");
         try {
             FileOutputStream fout = context.openFileOutput("cardFile.txt", Context.MODE_PRIVATE);
@@ -150,14 +146,19 @@ public class EnterProgram extends AppCompatActivity {
         StudentInterface.setCurrentIndex(EnterProgram.getCard(0).getCurrentIndex());
         this.createStudentInterface();
     }
-
+*/
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                mDrawerLayout.openDrawer(GravityCompat.START);
+                drawerLayout.openDrawer(GravityCompat.START);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    /*
+    public static Context getContext(){
+        return getApplicationContext();
+    }*/
 }

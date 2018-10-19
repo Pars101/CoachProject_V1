@@ -2,18 +2,14 @@ package com.example.mrleo.coachproect;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,11 +18,10 @@ import android.widget.TextView;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
 
 public class StudentInterface extends AppCompatActivity {
     private static ImageView imageView;
-    private static MediaPlayer mp;
+    //private static MediaPlayer mp;
     private static TextView textView;
     private static int currentIndex;
 
@@ -35,48 +30,49 @@ public class StudentInterface extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_interface);
 
-        EnterProgram.getCard(0).setIsInStudentInterface(true);
+        //EnterProgram.getCard(0).setIsInStudentInterface(true);
 
         Button leftButton = findViewById(R.id.buttonLeft);
         Button rightButton = findViewById(R.id.buttonRight);
         Button nextButton = findViewById(R.id.nextButton);
-        final Button cancelButton = findViewById(R.id.buttonCancel);
+        Button cancelButton = findViewById(R.id.buttonCancel);
         imageView = (ImageView)findViewById(R.id.imageInstructions);
         textView = (TextView)findViewById(R.id.textInstructions);
-        mp = MediaPlayer.create(this, R.raw.ding);
+        //mp = MediaPlayer.create(this, R.raw.ding);
 
-        currentIndex = EnterProgram.getCard(0).getCurrentIndex();
+        //currentIndex = EnterProgram.getCard(0).getCurrentIndex();
+        currentIndex = CardManager.getInstance().getCurrentIndex();
 
-        saveCardSet();
+        //saveCardSet();
 
-        for(int i = 0; i < EnterProgram.getCardSetLength(); i++){
-            EnterProgram.getCard(i).setImageIndex(0);
+        for(int i = 0; i < CardManager.getInstance().getCardSetLength(); i++){
+            CardManager.getInstance().getCard(i).setImageIndex(0);
         }
 
-        if(EnterProgram.getCard(currentIndex).getFirstImage() != null) {
-            setImage(EnterProgram.getCard(currentIndex).getFirstImage());
+        if(CardManager.getInstance().getCard(currentIndex).getFirstImage() != null) {
+            setImage(CardManager.getInstance().getCard(currentIndex).getFirstImage());
         }
         else {
             imageView.setImageResource(R.drawable.placeholder);
         }
 
-        textView.setText(EnterProgram.getCard(currentIndex).getMessage());
+        textView.setText(CardManager.getInstance().getCard(currentIndex).getMessage());
 
-        Log.i("HasSeconds", (EnterProgram.getCard(currentIndex).getSeconds() != 0) + "");
-        Log.i("PendingIntent", "" + (EnterProgram.getCard(currentIndex).getAlarmHasAlreadyPlayed() == false));
+        Log.i("HasSeconds", (CardManager.getInstance().getCard(currentIndex).getSeconds() != 0) + "");
+        Log.i("PendingIntent", "" + (CardManager.getInstance().getCard(currentIndex).getAlarmHasAlreadyPlayed() == false));
 
-        if(EnterProgram.getCard(currentIndex).getSeconds() != 0 && EnterProgram.getCard(currentIndex).getAlarmHasAlreadyPlayed() == false) {
-            setAlarm(EnterProgram.getCard(currentIndex).getSeconds() * 1000);
+        if(CardManager.getInstance().getCard(currentIndex).getSeconds() != 0 && CardManager.getInstance().getCard(currentIndex).getAlarmHasAlreadyPlayed() == false) {
+            setAlarm(CardManager.getInstance().getCard(currentIndex).getSeconds() * 1000);
         }
 
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(EnterProgram.getCard(currentIndex).getPrevImage() == null) {
+                if(CardManager.getInstance().getCard(currentIndex).getPrevImage() == null) {
                     imageView.setImageResource(R.drawable.placeholder);
                 }
                 else{
-                    setImage(EnterProgram.getCard(currentIndex).getPrevImage());
+                    setImage(CardManager.getInstance().getCard(currentIndex).getPrevImage());
                 }
             }
         });
@@ -84,11 +80,11 @@ public class StudentInterface extends AppCompatActivity {
         rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(EnterProgram.getCard(currentIndex).getNextImage() == null) {
+                if(CardManager.getInstance().getCard(currentIndex).getNextImage() == null) {
                     imageView.setImageResource(R.drawable.placeholder);
                 }
                 else{
-                    setImage(EnterProgram.getCard(currentIndex).getNextImage());
+                    setImage(CardManager.getInstance().getCard(currentIndex).getNextImage());
                 }
             }
         });
@@ -96,20 +92,20 @@ public class StudentInterface extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(currentIndex < EnterProgram.getCardSetLength() - 1) {
+                if(currentIndex < CardManager.getInstance().getCardSetLength() - 1) {
                     currentIndex++;
-                    if (EnterProgram.getCard(currentIndex).getFirstImage() != null) {
-                        setImage(EnterProgram.getCard(currentIndex).getFirstImage());
+                    if (CardManager.getInstance().getCard(currentIndex).getFirstImage() != null) {
+                        setImage(CardManager.getInstance().getCard(currentIndex).getFirstImage());
                     } else {
                         imageView.setImageResource(R.drawable.placeholder);
                     }
-                    textView.setText(EnterProgram.getCard(currentIndex).getMessage());
-                    if (EnterProgram.getCard(currentIndex).getSeconds() != 0) {
+                    textView.setText(CardManager.getInstance().getCard(currentIndex).getMessage());
+                    if (CardManager.getInstance().getCard(currentIndex).getSeconds() != 0) {
                         cancelAlarm();
-                        setAlarm(EnterProgram.getCard(currentIndex).getSeconds() * 1000);
+                        setAlarm(CardManager.getInstance().getCard(currentIndex).getSeconds() * 1000);
                     }
                 }
-                saveCardSet();
+                //saveCardSet();
             }
         });
 
@@ -117,24 +113,24 @@ public class StudentInterface extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 cancelAlarm();
-                EnterProgram.getCard(0).setIsInStudentInterface(false);
-                EnterProgram.getCard(0).setCurrentIndex(0);
+                CardManager.getInstance().getCard(0).setIsInStudentInterface(false);
+                CardManager.getInstance().getCard(0).setCurrentIndex(0);
                 for(int i = 0; i < currentIndex + 1; i++){
-                    EnterProgram.getCard(i).setAlarmHasAlreadyPlayed(false);
+                    CardManager.getInstance().getCard(i).setAlarmHasAlreadyPlayed(false);
                 }
                 currentIndex = 0;
-                saveCardSet();
+                //saveCardSet();
                 finish();
             }
         });
     }
 
     private void setAlarm(int milliseconds){
-        EnterProgram.getCard(currentIndex).setAlarmHasAlreadyPlayed(true);
-        saveCardSet();
+        CardManager.getInstance().getCard(currentIndex).setAlarmHasAlreadyPlayed(true);
+        //saveCardSet();
         Log.i("Set", "Setting");
         Log.i("Milliseconds", milliseconds + "");
-        EnterProgram.setCurrentIndex(StudentInterface.currentIndex);
+        CardManager.getInstance().setCurrentIndex(StudentInterface.currentIndex);
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, Alarm.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),1, intent, 0);
@@ -159,10 +155,12 @@ public class StudentInterface extends AppCompatActivity {
         return currentIndex;
     }
 
+    /*
     private void saveCardSet(){
-        EnterProgram.getCard(0).setCurrentIndex(currentIndex);
-        EnterProgram.setCardSet(getApplicationContext());
+        CardManager.getInstance().getCard(0).setCurrentIndex(currentIndex);
+        CardManager.getInstance().saveCardSet(getApplicationContext());
     }
+    */
 
     private void setImage(Uri uri) {
         try {
