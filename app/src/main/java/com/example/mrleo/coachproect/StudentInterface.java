@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -45,21 +44,23 @@ public class StudentInterface extends AppCompatActivity {
 
         //saveCardSet();
 
-        for(int i = 0; i < CardManager.getInstance().getCardSetLength(); i++){
-            CardManager.getInstance().getCard(i).setImageIndex(0);
-        }
+        //for(int i = 0; i < CardManager.getInstance().getCardSetLength(); i++){
+        //    CardManager.getInstance().getCard(i).setCurrentImageIndex(0);
+        //}
 
-        if(CardManager.getInstance().getCard(currentIndex).getFirstImage() != null) {
-            setImage(CardManager.getInstance().getCard(currentIndex).getFirstImage());
-        }
-        else {
+        final Card currentCard = CardManager.getInstance().getCard(currentIndex);
+        Uri currentImageUri = currentCard.getCurrentImage();
+        if(currentImageUri == null){
             imageView.setImageResource(R.drawable.placeholder);
+        }
+        else{
+            ImageUtil.setImage(imageView, currentImageUri);
         }
 
         textView.setText(CardManager.getInstance().getCard(currentIndex).getMessage());
 
-        Log.i("HasSeconds", (CardManager.getInstance().getCard(currentIndex).getSeconds() != 0) + "");
-        Log.i("PendingIntent", "" + (CardManager.getInstance().getCard(currentIndex).getAlarmHasAlreadyPlayed() == false));
+        //Log.i("HasSeconds", (CardManager.getInstance().getCard(currentIndex).getSeconds() != 0) + "");
+        //Log.i("PendingIntent", "" + (CardManager.getInstance().getCard(currentIndex).getAlarmHasAlreadyPlayed() == false));
 
         if(CardManager.getInstance().getCard(currentIndex).getSeconds() != 0 && CardManager.getInstance().getCard(currentIndex).getAlarmHasAlreadyPlayed() == false) {
             setAlarm(CardManager.getInstance().getCard(currentIndex).getSeconds() * 1000);
@@ -68,24 +69,14 @@ public class StudentInterface extends AppCompatActivity {
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(CardManager.getInstance().getCard(currentIndex).getPrevImage() == null) {
-                    imageView.setImageResource(R.drawable.placeholder);
-                }
-                else{
-                    setImage(CardManager.getInstance().getCard(currentIndex).getPrevImage());
-                }
+                ImageUtil.setImage(imageView, currentCard.getPrevImage());
             }
         });
 
         rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(CardManager.getInstance().getCard(currentIndex).getNextImage() == null) {
-                    imageView.setImageResource(R.drawable.placeholder);
-                }
-                else{
-                    setImage(CardManager.getInstance().getCard(currentIndex).getNextImage());
-                }
+                ImageUtil.setImage(imageView, currentCard.getNextImage());
             }
         });
 
@@ -95,7 +86,7 @@ public class StudentInterface extends AppCompatActivity {
                 if(currentIndex < CardManager.getInstance().getCardSetLength() - 1) {
                     currentIndex++;
                     if (CardManager.getInstance().getCard(currentIndex).getFirstImage() != null) {
-                        setImage(CardManager.getInstance().getCard(currentIndex).getFirstImage());
+                        ImageUtil.setImage(imageView, CardManager.getInstance().getCard(currentIndex).getFirstImage());
                     } else {
                         imageView.setImageResource(R.drawable.placeholder);
                     }
@@ -161,16 +152,4 @@ public class StudentInterface extends AppCompatActivity {
         CardManager.getInstance().saveCardSet(getApplicationContext());
     }
     */
-
-    private void setImage(Uri uri) {
-        try {
-            InputStream inputStream = getContentResolver().openInputStream(uri);
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 2;
-            Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
-            imageView.setImageBitmap(bitmap);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
 }

@@ -1,16 +1,15 @@
 package com.example.mrleo.coachproect;
 
 import android.net.Uri;
-import android.util.Log;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Card implements Serializable{
     private String message = new String();
-    private ArrayList<Uri> imageList = new ArrayList<>();
+    private ArrayList<Uri> imageList;
     private Integer seconds = new Integer(0);
-    private int imageIndex = -1;
+    private int currentImageIndex;
 
     private boolean isInStudentInterface = false;
     private int currentIndex = 0;
@@ -19,12 +18,15 @@ public class Card implements Serializable{
     public Card(String message, Integer seconds){
         this.message = message;
         this.seconds = seconds;
+        imageList = new ArrayList<>();
+        currentImageIndex = -1;
     }
 
     public Card(String message, ArrayList<Uri> imageList, Integer seconds) {
         this.message = message;
-        this.imageList = imageList;
         this.seconds = seconds;
+        this.imageList = imageList == null ? new ArrayList<Uri>() : imageList;
+        currentImageIndex = imageList.size() - 1;
     }
 
     public ArrayList<Uri> getImageList() {
@@ -39,32 +41,38 @@ public class Card implements Serializable{
         return message;
     }
 
+    public void setMessage(String message){
+        this.message = message;
+    }
+
     public Integer getSeconds(){
         return seconds;
     }
 
+    public void setSeconds(Integer seconds){
+        this.seconds = seconds;
+    }
+
+    public Uri getCurrentImage(){
+        return isValidIndex(currentImageIndex) ? imageList.get(currentImageIndex) : null;
+    }
+
     public Uri getNextImage(){
-        if(!imageList.isEmpty()) {
-            if (imageIndex < imageList.size() - 1) {
-                ++imageIndex;
-            }
-            return imageList.get(imageIndex);
+        if(isValidIndex(currentImageIndex + 1)){
+            currentImageIndex++;
+            return imageList.get(currentImageIndex);
         }
-        else{
-            return null;
-        }
+
+        return null;
     }
 
     public Uri getPrevImage(){
-        if(!imageList.isEmpty()) {
-            if (imageIndex > 0) {
-                --imageIndex;
-            }
-            return imageList.get(imageIndex);
+        if(isValidIndex(currentImageIndex - 1)){
+            currentImageIndex--;
+            return imageList.get(currentImageIndex);
         }
-        else{
-            return null;
-        }
+
+        return null;
     }
 
     public Uri getFirstImage(){
@@ -76,46 +84,26 @@ public class Card implements Serializable{
         }
     }
 
-    public Uri getCurrentImage(){
-        if(!imageList.isEmpty()) {
-            return imageList.get(imageIndex);
-        }
-        else {
-            return null;
-        }
-    }
-
-    public Integer getImageListLength(){
-        return imageList.size();
-    }
-
-    public void setMessage(String message){
-        this.message = message;
-    }
-
-    public void setSeconds(Integer seconds){
-        this.seconds = seconds;
-    }
-
     public void addImage(Uri image){
-        imageIndex++;
-        imageList.add(imageIndex, image);
+        currentImageIndex++;
+        imageList.add(currentImageIndex, image);
     }
 
     public Uri removeImage(){
-        if(!imageList.isEmpty()) {
-            imageList.remove(imageIndex);
-            imageIndex--;
-            if(!imageList.isEmpty()) {
-                imageIndex++;
-                return imageList.get(imageIndex);
+        if(isValidIndex(currentImageIndex)){
+            int index = currentImageIndex;
+            if(currentImageIndex == imageList.size() - 1){
+                currentImageIndex--;
             }
+
+            imageList.remove(index);
         }
-        return null;
+
+        return getCurrentImage();
     }
 
-    public void setImageIndex(int index){
-        this.imageIndex = index;
+    public void setCurrentImageIndex(int index){
+        this.currentImageIndex = index;
     }
 
     public void setIsInStudentInterface(boolean newIsInStudentInterface){
@@ -130,15 +118,15 @@ public class Card implements Serializable{
         currentIndex = newCurrentIndex;
     }
 
-    public int getCurrentIndex(){
-        return currentIndex;
-    }
-
     public void setAlarmHasAlreadyPlayed(boolean alarmHasAlreadyPlayed){
         this.alarmHasAlreadyPlayed = alarmHasAlreadyPlayed;
     }
 
     public boolean getAlarmHasAlreadyPlayed(){
         return alarmHasAlreadyPlayed;
+    }
+
+    private boolean isValidIndex(int index){
+        return index >= 0 && index < imageList.size();
     }
 }

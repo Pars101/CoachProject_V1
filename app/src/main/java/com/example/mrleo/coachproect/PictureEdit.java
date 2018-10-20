@@ -1,30 +1,19 @@
 package com.example.mrleo.coachproect;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
 
 public class PictureEdit extends AppCompatActivity {
 
@@ -46,35 +35,25 @@ public class PictureEdit extends AppCompatActivity {
         Button rightButton = findViewById(R.id.rightButton);
         Button backButton = findViewById(R.id.backButton);
         imageView = findViewById(R.id.imageView);
-
-        if (currentCard.getFirstImage() == null) {
+        Uri currentImageUri = currentCard.getCurrentImage();
+        if(currentImageUri == null){
             imageView.setImageResource(R.drawable.placeholder);
-            currentCard.setImageIndex(-1);
-        } else {
-            setImage(currentCard.getFirstImage());
+        }
+        else{
+            ImageUtil.setImage(imageView, currentImageUri);
         }
 
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(currentCard.getPrevImage() == null) {
-                    imageView.setImageResource(R.drawable.placeholder);
-                }
-                else{
-                    setImage(currentCard.getPrevImage());
-                }
+                ImageUtil.setImage(imageView, currentCard.getPrevImage());
             }
         });
 
         rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(currentCard.getNextImage() == null) {
-                    imageView.setImageResource(R.drawable.placeholder);
-                }
-                else{
-                    setImage(currentCard.getNextImage());
-                }
+                ImageUtil.setImage(imageView, currentCard.getNextImage());
             }
         });
 
@@ -83,7 +62,7 @@ public class PictureEdit extends AppCompatActivity {
             public void onClick(View view) {
                 Uri temp = currentCard.removeImage();
                 if(temp != null) {
-                    setImage(temp);
+                    ImageUtil.setImage(imageView, temp);
                 }
                 else {
                     imageView.setImageResource(R.drawable.placeholder);
@@ -116,20 +95,8 @@ public class PictureEdit extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == Activity.RESULT_OK && requestCode == PICK_IMAGE){
             imageUri = data.getData();
-            setImage(imageUri);
+            ImageUtil.setImage(imageView, imageUri);
             currentCard.addImage(data.getData());
-        }
-    }
-
-    private void setImage(Uri uri) {
-        try {
-            InputStream inputStream = getContentResolver().openInputStream(uri);
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 2;
-            Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
-            imageView.setImageBitmap(bitmap);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         }
     }
 }

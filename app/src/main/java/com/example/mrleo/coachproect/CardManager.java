@@ -1,6 +1,7 @@
 package com.example.mrleo.coachproect;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
@@ -57,6 +58,8 @@ public class CardManager {
 
     public void saveCardSet(){
         Log.i("Setting", getCard(0).getIsInStudentInterface() + "");
+        grantPersistentAccess(cardSet);
+
         Context context = MainApplication.getAppContext();
         try {
             FileOutputStream fout = context.openFileOutput("cardFile.txt", Context.MODE_PRIVATE);
@@ -70,19 +73,6 @@ public class CardManager {
             Log.i("Invalid Class", e.getMessage());
         } catch(IOException e){
             Log.i("IO Class", e.getMessage());
-        }
-
-        try {
-            FileInputStream fis = context.openFileInput("cardFile.txt");
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            ArrayList<CardMetadata> cardSet1 = (ArrayList<CardMetadata>) ois.readObject();
-            ArrayList<Card> cardSet2 = getCardList(cardSet1);
-            ois.close();
-            fis.close();
-        } catch (IOException e) {
-            Log.i("IOExceptionCardSet", e.getMessage());
-        } catch (ClassNotFoundException e) {
-            Log.i("ClassNotFound", e.getMessage());
         }
     }
 
@@ -138,5 +128,18 @@ public class CardManager {
         }
 
         return cards;
+    }
+
+    private static void grantPersistentAccess(ArrayList<Card> cards){
+        if(cards != null){
+            for (Card card: cards) {
+                ArrayList<Uri> imageUriList = card.getImageList();
+                if(imageUriList != null){
+                    for (Uri uri: imageUriList) {
+                        MainApplication.getAppContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    }
+                }
+            }
+        }
     }
 }
