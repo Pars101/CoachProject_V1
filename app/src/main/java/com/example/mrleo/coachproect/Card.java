@@ -4,37 +4,74 @@ import android.net.Uri;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class Card implements Serializable{
-    private String message = new String();
+    private UUID id;
+    private String title;
+    private String message;
+    private Integer hours;
+    private Integer minutes;
     private ArrayList<Uri> imageList;
-    private Integer seconds = new Integer(0);
+
     private int currentImageIndex;
 
-    private boolean isInStudentInterface = false;
-    private int currentIndex = 0;
-    private boolean alarmHasAlreadyPlayed = false;
-
-    public Card(String message, Integer seconds){
-        this.message = message;
-        this.seconds = seconds;
+    public Card(){
+        id = UUID.randomUUID();
+        title = "";
+        message = "";
+        hours = 0;
+        minutes = 0;
         imageList = new ArrayList<>();
         currentImageIndex = -1;
     }
 
-    public Card(String message, ArrayList<Uri> imageList, Integer seconds) {
-        this.message = message;
-        this.seconds = seconds;
-        this.imageList = imageList == null ? new ArrayList<Uri>() : imageList;
-        currentImageIndex = imageList.size() - 1;
+    public Card(CardMetadata cardMetadata) {
+        id = cardMetadata.getId();
+        title = cardMetadata.getTitle();
+        message = cardMetadata.getMessage();
+        hours = cardMetadata.getHours();
+        minutes = cardMetadata.getMinutes();
+        imageList = new ArrayList<>();
+        ArrayList<String> imageUriStringList = cardMetadata.getImageList();
+        if(imageUriStringList != null){
+            for (String str: imageUriStringList) {
+                imageList.add(Uri.parse(str));
+            }
+        }
+        currentImageIndex = imageList.isEmpty() ? -1 : 0;
     }
 
-    public ArrayList<Uri> getImageList() {
-        return imageList;
+    public String getTitle() {
+        return title;
     }
 
-    public void setImageList(ArrayList<Uri> imageList) {
-        this.imageList = imageList;
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public Integer getHours() {
+        return hours;
+    }
+
+    public void setHours(Integer hours) {
+        this.hours = hours;
+    }
+
+    public Integer getMinutes() {
+        return minutes;
+    }
+
+    public void setMinutes(Integer minutes) {
+        this.minutes = minutes;
     }
 
     public String getMessage(){
@@ -45,12 +82,8 @@ public class Card implements Serializable{
         this.message = message;
     }
 
-    public Integer getSeconds(){
-        return seconds;
-    }
-
-    public void setSeconds(Integer seconds){
-        this.seconds = seconds;
+    public ArrayList<Uri> getImageList() {
+        return imageList;
     }
 
     public Uri getCurrentImage(){
@@ -58,7 +91,7 @@ public class Card implements Serializable{
     }
 
     public Uri getNextImage(){
-        if(isValidIndex(currentImageIndex + 1)){
+        if(hasNextImage()){
             currentImageIndex++;
             return imageList.get(currentImageIndex);
         }
@@ -66,8 +99,12 @@ public class Card implements Serializable{
         return null;
     }
 
+    public boolean hasNextImage(){
+        return isValidIndex(currentImageIndex + 1);
+    }
+
     public Uri getPrevImage(){
-        if(isValidIndex(currentImageIndex - 1)){
+        if(hasPrevImage()){
             currentImageIndex--;
             return imageList.get(currentImageIndex);
         }
@@ -75,13 +112,8 @@ public class Card implements Serializable{
         return null;
     }
 
-    public Uri getFirstImage(){
-        if(!imageList.isEmpty()) {
-            return imageList.get(0);
-        }
-        else {
-            return null;
-        }
+    public boolean hasPrevImage(){
+        return isValidIndex(currentImageIndex - 1);
     }
 
     public void addImage(Uri image){
@@ -89,7 +121,7 @@ public class Card implements Serializable{
         imageList.add(currentImageIndex, image);
     }
 
-    public Uri removeImage(){
+    public void removeImage(){
         if(isValidIndex(currentImageIndex)){
             int index = currentImageIndex;
             if(currentImageIndex == imageList.size() - 1){
@@ -98,32 +130,6 @@ public class Card implements Serializable{
 
             imageList.remove(index);
         }
-
-        return getCurrentImage();
-    }
-
-    public void setCurrentImageIndex(int index){
-        this.currentImageIndex = index;
-    }
-
-    public void setIsInStudentInterface(boolean newIsInStudentInterface){
-        isInStudentInterface = newIsInStudentInterface;
-    }
-
-    public boolean getIsInStudentInterface(){
-        return isInStudentInterface;
-    }
-
-    public void setCurrentIndex(int newCurrentIndex){
-        currentIndex = newCurrentIndex;
-    }
-
-    public void setAlarmHasAlreadyPlayed(boolean alarmHasAlreadyPlayed){
-        this.alarmHasAlreadyPlayed = alarmHasAlreadyPlayed;
-    }
-
-    public boolean getAlarmHasAlreadyPlayed(){
-        return alarmHasAlreadyPlayed;
     }
 
     private boolean isValidIndex(int index){

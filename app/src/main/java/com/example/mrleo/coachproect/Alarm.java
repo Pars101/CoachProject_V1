@@ -27,6 +27,6 @@ public class Alarm extends BroadcastReceiver{
         Log.i("Alarm", "IT'S WORKING OH MY GOD YES");
         player.start();
 
-        CardManager.getInstance().getCard(StudentInterface.getCurrentIndex()).setAlarmHasAlreadyPlayed(true);
+        //CardManager.getInstance().getCard(StudentInterface.getCurrentIndex()).setAlarmHasAlreadyPlayed(true);
     }
 }

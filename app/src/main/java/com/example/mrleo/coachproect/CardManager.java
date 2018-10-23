@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,54 +16,68 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 public class CardManager {
-    private static CardManager instance = null;
+    private final String CARD_FILE_NAME = "cardFile.txt";
 
-    private ArrayList<Card> cardSet = new ArrayList<Card>();
-    private int currentCardIndex = 0;
+    private ArrayList<Card> cardSet;
+    private int currentCardIndex;
 
-    private CardManager(){
-        readCardSet();
+    public CardManager(){
+        cardSet = readCardSet();
+        currentCardIndex = cardSet.isEmpty() ? - 1 : 0;
     }
 
-    public static CardManager getInstance()
-    {
-        if (instance == null)
-            instance = new CardManager();
-
-        return instance;
+    public Card getCurrentCard(){
+        return isValidIndex(currentCardIndex) ? cardSet.get(currentCardIndex) : null;
     }
 
-    public void addCard(Card card){
-        cardSet.add(card);
-    }
-
-    public Card getCard(int i){
-        if(cardSet.isEmpty()){
-            addCard(new Card("", 0));
+    public Card getNextCard(){
+        if(hasNextCard()){
+            currentCardIndex++;
+            return cardSet.get(currentCardIndex);
         }
-        return cardSet.get(i);
+
+        return null;
     }
 
-
-    public Integer getCardSetLength(){
-        return cardSet.size();
+    public boolean hasNextCard(){
+        return isValidIndex(currentCardIndex + 1);
     }
 
-    public void setCurrentIndex(int currentIndex){
-        currentCardIndex = currentIndex;
+    public Card getPrevCard(){
+        if(hasPrevCard()){
+            currentCardIndex--;
+            return cardSet.get(currentCardIndex);
+        }
+
+        return null;
     }
 
-    public int getCurrentIndex(){
-        return currentCardIndex;
+    public boolean hasPrevCard(){
+        return isValidIndex(currentCardIndex - 1);
+    }
+
+    public void addNewCard(){
+        currentCardIndex++;
+        cardSet.add(currentCardIndex, new Card());
+    }
+
+    public void removeCard(){
+        if(isValidIndex(currentCardIndex)){
+            int index = currentCardIndex;
+            if(currentCardIndex == cardSet.size() - 1){
+                currentCardIndex--;
+            }
+
+            cardSet.remove(index);
+        }
     }
 
     public void saveCardSet(){
-        Log.i("Setting", getCard(0).getIsInStudentInterface() + "");
         grantPersistentAccess(cardSet);
 
         Context context = MainApplication.getAppContext();
         try {
-            FileOutputStream fout = context.openFileOutput("cardFile.txt", Context.MODE_PRIVATE);
+            FileOutputStream fout = context.openFileOutput(CARD_FILE_NAME, Context.MODE_PRIVATE);
             ObjectOutputStream oos = new ObjectOutputStream(fout);
             oos.writeObject(getCardMetadataList(cardSet));
             oos.close();
@@ -76,35 +91,32 @@ public class CardManager {
         }
     }
 
-    public void readCardSet(){
+    private ArrayList<Card> readCardSet(){
         Context context = MainApplication.getAppContext();
-        try {
-            FileInputStream fis = context.openFileInput("cardFile.txt");
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            cardSet = getCardList((ArrayList<CardMetadata>) ois.readObject());
-            ois.close();
-            fis.close();
-        } catch (IOException e) {
-            Log.i("IOExceptionCardSet", e.getMessage());
-        } catch (ClassNotFoundException e) {
-            Log.i("ClassNotFound", e.getMessage());
+        File file = context.getFileStreamPath(CARD_FILE_NAME);
+        if(file != null && file.exists()) {
+            try {
+                FileInputStream fis = context.openFileInput(CARD_FILE_NAME);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                ArrayList<Card> cards = getCardList((ArrayList<CardMetadata>) ois.readObject());
+                ois.close();
+                fis.close();
+                return cards;
+            } catch (IOException e) {
+                Log.i("IOExceptionCardSet", e.getMessage());
+            } catch (ClassNotFoundException e) {
+                Log.i("ClassNotFound", e.getMessage());
+            }
         }
-        Log.i("Reading", getCard(0).getIsInStudentInterface() + "");
+
+        return new ArrayList<Card>();
     }
     
     private static ArrayList<CardMetadata> getCardMetadataList(ArrayList<Card> cards){
         ArrayList<CardMetadata> cardMetadataList = new ArrayList<CardMetadata>();
         if(cards != null){
             for (Card card: cards) {
-                ArrayList<Uri> imageUriList = card.getImageList();
-                ArrayList<String> imageUriStringList = new ArrayList<String>();
-                if(imageUriList != null){
-                    for (Uri uri: imageUriList) {
-                        imageUriStringList.add(uri.toString());
-                    }
-                }
-
-                cardMetadataList.add(new CardMetadata(card.getMessage(), imageUriStringList, card.getSeconds()));
+                cardMetadataList.add(new CardMetadata(card));
             }
         }
         
@@ -115,15 +127,7 @@ public class CardManager {
         ArrayList<Card> cards = new ArrayList<Card>();
         if(cardMetadataList != null){
             for (CardMetadata cardMetadata: cardMetadataList) {
-                ArrayList<Uri> imageUriList = new ArrayList<Uri>();
-                ArrayList<String> imageUriStringList = cardMetadata.getImageList();
-                if(imageUriStringList != null){
-                    for (String str: imageUriStringList) {
-                        imageUriList.add(Uri.parse(str));
-                    }
-                }
-
-                cards.add(new Card(cardMetadata.getMessage(), imageUriList, cardMetadata.getSeconds()));
+                cards.add(new Card(cardMetadata));
             }
         }
 
@@ -141,5 +145,9 @@ public class CardManager {
                 }
             }
         }
+    }
+
+    private boolean isValidIndex(int index){
+        return index >= 0 && index < cardSet.size();
     }
 }

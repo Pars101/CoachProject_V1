@@ -26,9 +26,6 @@
         <activity android:name=".CoachInterface"
             android:label="@string/title_activity_student_interface"
             android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".PictureEdit"
-            android:label="@string/title_activity_student_interface"
-            android:theme="@style/AppTheme.NoActionBar"/>
 
         <receiver
             android:name="com.example.mrleo.coachproect.Alarm"
