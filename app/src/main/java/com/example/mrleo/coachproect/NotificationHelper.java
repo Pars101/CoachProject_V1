@@ -5,8 +5,11 @@ import android.app.*;
 import android.app.Notification;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+
+import java.util.UUID;
 
 /**
  * Created by mrleo on 8/13/2018.
@@ -43,7 +46,17 @@ public class NotificationHelper extends ContextWrapper{
         return manager;
     }
 
-    public NotificationCompat.Builder getChannelNotification(){
-        return new NotificationCompat.Builder(getApplicationContext(), channel1ID) .setContentTitle("Title").setContentText("Message").setSmallIcon(R.drawable.ic_one).setPriority(Notification.PRIORITY_MAX);
+    public NotificationCompat.Builder getChannelNotification(String title, String message){
+        Intent studentIntent = new Intent(this, StudentInterface.class);
+        studentIntent.putExtra("ENTRY", (UUID)null);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                studentIntent, 0);
+        return new NotificationCompat.Builder(getApplicationContext(), channel1ID)
+                .setContentTitle(title)
+                .setContentText(message)
+                //.setContentIntent(contentIntent)
+                .setFullScreenIntent(contentIntent, true)
+                .setSmallIcon(R.drawable.ic_one)
+                .setPriority(Notification.PRIORITY_MAX);
     }
 }

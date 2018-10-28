@@ -10,23 +10,26 @@ import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import java.util.UUID;
+
 /**
  * Created by mrleo on 8/8/2018.
  */
 
 public class Alarm extends BroadcastReceiver{
-
-    private static final int uniqueID = 979769;
+    private static MediaPlayer player = MediaPlayer.create(MainApplication.getAppContext(), Settings.System.DEFAULT_RINGTONE_URI);
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        String title = intent.getStringExtra("Title");
         NotificationHelper notificationHelper = new NotificationHelper(context);
-        NotificationCompat.Builder nb = notificationHelper.getChannelNotification();
+        NotificationCompat.Builder nb = notificationHelper.getChannelNotification("Congrats!", "You finished " + title);
         notificationHelper.getManager().notify(1, nb.build());
-        MediaPlayer player = MediaPlayer.create(context, Settings.System.DEFAULT_RINGTONE_URI);
-        Log.i("Alarm", "IT'S WORKING OH MY GOD YES");
-        player.start();
+        //player.start();
+        MediaPlayer.create(MainApplication.getAppContext(), Settings.System.DEFAULT_RINGTONE_URI).start();
+    }
 
-        //CardManager.getInstance().getCard(StudentInterface.getCurrentIndex()).setAlarmHasAlreadyPlayed(true);
+    public static void stop(){
+        player.stop();
     }
 }

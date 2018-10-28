@@ -14,6 +14,7 @@ import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class CardManager {
     private final String CARD_FILE_NAME = "cardFile.txt";
@@ -21,9 +22,26 @@ public class CardManager {
     private ArrayList<Card> cardSet;
     private int currentCardIndex;
 
-    public CardManager(){
+    public CardManager() {
+        this(null);
+    }
+
+    public CardManager(UUID cardId){
         cardSet = readCardSet();
-        currentCardIndex = cardSet.isEmpty() ? - 1 : 0;
+        if(cardSet.isEmpty()){
+            currentCardIndex = -1;
+        }
+        else{
+            currentCardIndex = 0;
+            if(cardId != null){
+                for (int i = 0; i < cardSet.size(); i++) {
+                    if(cardId.equals(cardSet.get(i).getId())){
+                        currentCardIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     public Card getCurrentCard(){
@@ -70,6 +88,10 @@ public class CardManager {
 
             cardSet.remove(index);
         }
+    }
+
+    public ArrayList<Card> getCardSet(){
+        return cardSet;
     }
 
     public void saveCardSet(){

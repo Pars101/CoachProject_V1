@@ -4,17 +4,24 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.UUID;
 
 public class StudentInterface extends AppCompatActivity {
+    private final int REQ_CODE = 915;
     private CardManager cardManager;
+    UUID cardId;
 
     private Button prevCardButton;
     private Button nextCardButton;
@@ -50,12 +57,22 @@ public class StudentInterface extends AppCompatActivity {
         nextImageButton = findViewById(R.id.buttonRight);
         imageView = findViewById(R.id.imageInstructions);
 
-        cardManager = new CardManager();
+        UUID tempId = null;
+        try {
+            tempId = (UUID) getIntent().getExtras().get("ENTRY");
+        }
+        catch (Exception e){
+
+        }
+        cardId = tempId != null ? tempId : AlarmCardManager.readAlarmCardId();
+        cardManager = new CardManager(cardId);
+
         updateControls();
 
         Card currentCard = cardManager.getCurrentCard();
         if(currentCard != null){
             updateCardInfoFields(currentCard);
+            updateAlarmButton(currentCard);
         }
 
         prevCardButton.setOnClickListener(new View.OnClickListener() {
@@ -65,6 +82,7 @@ public class StudentInterface extends AppCompatActivity {
                 Card prevCard = cardManager.getPrevCard();
                 updateCardInfoFields(prevCard);
                 updateControls();
+                updateAlarmButton(prevCard);
             }
             }
         });
@@ -76,6 +94,7 @@ public class StudentInterface extends AppCompatActivity {
                 Card nextCard = cardManager.getNextCard();
                 updateCardInfoFields(nextCard);
                 updateControls();
+                updateAlarmButton(nextCard);
             }
             }
         });
@@ -90,19 +109,19 @@ public class StudentInterface extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                cancelAlarm();
-                long hours = cardManager.getCurrentCard().getHours();
-                long minutes = cardManager.getCurrentCard().getMinutes();
-                long seconds = hours * 3600 + minutes * 60;
-                if(seconds != 0) {
-                    setAlarm(seconds * 1000);
-                }
+                startButton.setEnabled(false);
+                cancelButton.setEnabled(true);
+                cardId = cardManager.getCurrentCard().getId();
+                setAlarm(cardManager.getCurrentCard());
             }
         });
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                startButton.setEnabled(true);
+                cancelButton.setEnabled(false);
+                cardId = null;
                 cancelAlarm();
             }
         });
@@ -135,6 +154,17 @@ public class StudentInterface extends AppCompatActivity {
         startButton.setEnabled(cardManager.getCurrentCard() != null && (cardManager.getCurrentCard().getHours() != 0 || cardManager.getCurrentCard().getMinutes() != 0));
     }
 
+    private void updateAlarmButton(Card card){
+        if(card.getId().equals(cardId)){
+            startButton.setEnabled(false);
+            cancelButton.setEnabled(true);
+        }
+        else{
+            startButton.setEnabled(true);
+            cancelButton.setEnabled(false);
+        }
+    }
+
     private void updateCardInfoFields(Card card){
         if(card == null){
             imageView.setImageResource(R.drawable.placeholder);
@@ -155,20 +185,31 @@ public class StudentInterface extends AppCompatActivity {
         }
     }
 
-    private void setAlarm(long milliseconds){
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, Alarm.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),1, intent, 0);
+    private void setAlarm(Card card){
+        long hours = card.getHours();
+        long minutes = card.getMinutes();
+        long milliseconds = (hours * 3600 + minutes * 60) * 1000;
+        if(milliseconds != 0) {
 
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + milliseconds, pendingIntent);
+            AlarmCardManager.saveAlarmCardId(card.getId());
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(this, Alarm.class);
+            intent.putExtra("Title", card.getTitle());
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), REQ_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + milliseconds, pendingIntent);
+        }
     }
 
     private void cancelAlarm(){
         Log.i("Canceled", "Canceling");
+        AlarmCardManager.saveAlarmCardId(null);
+
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, Alarm.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),1, intent, 0);
-
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), REQ_CODE, intent, 0);
         alarmManager.cancel(pendingIntent);
+
+        Alarm.stop();
     }
 }
