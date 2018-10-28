@@ -7,13 +7,10 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.os.Build;
+import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
 import java.util.UUID;
-
-/**
- * Created by mrleo on 8/13/2018.
- */
 
 public class NotificationHelper extends ContextWrapper{
 
@@ -48,15 +45,17 @@ public class NotificationHelper extends ContextWrapper{
 
     public NotificationCompat.Builder getChannelNotification(String title, String message){
         Intent studentIntent = new Intent(this, StudentInterface.class);
-        studentIntent.putExtra("ENTRY", (UUID)null);
+        UUID id = AlarmCardManager.readAlarmCardId();
+        studentIntent.putExtra("ENTRY", id);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                studentIntent, 0);
+                studentIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         return new NotificationCompat.Builder(getApplicationContext(), channel1ID)
                 .setContentTitle(title)
                 .setContentText(message)
-                //.setContentIntent(contentIntent)
+                .setAutoCancel(true)
+                .setSound(Settings.System.DEFAULT_RINGTONE_URI)
                 .setFullScreenIntent(contentIntent, true)
-                .setSmallIcon(R.drawable.ic_one)
+                .setSmallIcon(R.drawable.alarm_on)
                 .setPriority(Notification.PRIORITY_MAX);
     }
 }

@@ -4,24 +4,21 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.UUID;
 
 public class StudentInterface extends AppCompatActivity {
     private final int REQ_CODE = 915;
     private CardManager cardManager;
-    UUID cardId;
+    UUID alarmCardId;
 
     private Button prevCardButton;
     private Button nextCardButton;
@@ -36,7 +33,6 @@ public class StudentInterface extends AppCompatActivity {
     private Button prevImageButton;
     private Button nextImageButton;
     private ImageView imageView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,15 +53,8 @@ public class StudentInterface extends AppCompatActivity {
         nextImageButton = findViewById(R.id.buttonRight);
         imageView = findViewById(R.id.imageInstructions);
 
-        UUID tempId = null;
-        try {
-            tempId = (UUID) getIntent().getExtras().get("ENTRY");
-        }
-        catch (Exception e){
-
-        }
-        cardId = tempId != null ? tempId : AlarmCardManager.readAlarmCardId();
-        cardManager = new CardManager(cardId);
+        alarmCardId = AlarmCardManager.readAlarmCardId();
+        cardManager = new CardManager((UUID) getIntent().getExtras().get("ENTRY"));
 
         updateControls();
 
@@ -111,7 +100,7 @@ public class StudentInterface extends AppCompatActivity {
             public void onClick(View view) {
                 startButton.setEnabled(false);
                 cancelButton.setEnabled(true);
-                cardId = cardManager.getCurrentCard().getId();
+                alarmCardId = cardManager.getCurrentCard().getId();
                 setAlarm(cardManager.getCurrentCard());
             }
         });
@@ -121,7 +110,7 @@ public class StudentInterface extends AppCompatActivity {
             public void onClick(View view) {
                 startButton.setEnabled(true);
                 cancelButton.setEnabled(false);
-                cardId = null;
+                alarmCardId = null;
                 cancelAlarm();
             }
         });
@@ -155,7 +144,7 @@ public class StudentInterface extends AppCompatActivity {
     }
 
     private void updateAlarmButton(Card card){
-        if(card.getId().equals(cardId)){
+        if(card.getId().equals(alarmCardId)){
             startButton.setEnabled(false);
             cancelButton.setEnabled(true);
         }
@@ -209,7 +198,5 @@ public class StudentInterface extends AppCompatActivity {
         Intent intent = new Intent(this, Alarm.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), REQ_CODE, intent, 0);
         alarmManager.cancel(pendingIntent);
-
-        Alarm.stop();
     }
 }

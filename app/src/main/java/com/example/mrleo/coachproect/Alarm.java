@@ -1,23 +1,16 @@
 package com.example.mrleo.coachproect;
 
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
-import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
-
-import java.util.UUID;
 
 /**
  * Created by mrleo on 8/8/2018.
  */
 
 public class Alarm extends BroadcastReceiver{
-    private static MediaPlayer player = MediaPlayer.create(MainApplication.getAppContext(), Settings.System.DEFAULT_RINGTONE_URI);
+    //private static MediaPlayer player = MediaPlayer.create(MainApplication.getAppContext(), Settings.System.DEFAULT_RINGTONE_URI);
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -26,10 +19,10 @@ public class Alarm extends BroadcastReceiver{
         NotificationCompat.Builder nb = notificationHelper.getChannelNotification("Congrats!", "You finished " + title);
         notificationHelper.getManager().notify(1, nb.build());
         //player.start();
-        MediaPlayer.create(MainApplication.getAppContext(), Settings.System.DEFAULT_RINGTONE_URI).start();
+        //MediaPlayer.create(MainApplication.getAppContext(), Settings.System.DEFAULT_RINGTONE_URI).start();
     }
 
-    public static void stop(){
-        player.stop();
-    }
+    //public static void stop(){
+    //    player.stop();
+    //}
 }
