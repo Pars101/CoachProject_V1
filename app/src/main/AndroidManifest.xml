@@ -32,5 +32,8 @@
             android:enabled="true"
             android:exported="true">
         </receiver>
+
+        <service android:name=".SpeechService" >
+        </service>
     </application>
 </manifest>

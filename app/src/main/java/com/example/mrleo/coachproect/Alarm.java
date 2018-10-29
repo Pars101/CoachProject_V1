@@ -3,6 +3,8 @@ package com.example.mrleo.coachproect;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.NotificationCompat;
 
 /**
@@ -10,19 +12,20 @@ import android.support.v4.app.NotificationCompat;
  */
 
 public class Alarm extends BroadcastReceiver{
-    //private static MediaPlayer player = MediaPlayer.create(MainApplication.getAppContext(), Settings.System.DEFAULT_RINGTONE_URI);
-
+    String title;
+    Context context1;
     @Override
     public void onReceive(Context context, Intent intent) {
-        String title = intent.getStringExtra("Title");
-        NotificationHelper notificationHelper = new NotificationHelper(context);
-        NotificationCompat.Builder nb = notificationHelper.getChannelNotification("Congrats!", "You finished " + title);
-        notificationHelper.getManager().notify(1, nb.build());
-        //player.start();
-        //MediaPlayer.create(MainApplication.getAppContext(), Settings.System.DEFAULT_RINGTONE_URI).start();
+        title = intent.getStringExtra("Title");
+        SpeechService.mTts.speak("Congratulations! " + "You just finished " + title, TextToSpeech.QUEUE_FLUSH,null);
+        this.context1 = context;
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                NotificationHelper notificationHelper = new NotificationHelper(context1);
+                NotificationCompat.Builder nb = notificationHelper.getChannelNotification("Congratulations!", "You just finished - " + title);
+                notificationHelper.getManager().notify(1, nb.build());
+            }
+        }, 5000);
     }
-
-    //public static void stop(){
-    //    player.stop();
-    //}
 }

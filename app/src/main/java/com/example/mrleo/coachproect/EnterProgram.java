@@ -25,6 +25,8 @@ public class EnterProgram extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_enter_program);
 
+        MainApplication.getAppContext().startService(new Intent(MainApplication.getAppContext(), SpeechService.class));
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionbar = getSupportActionBar();
