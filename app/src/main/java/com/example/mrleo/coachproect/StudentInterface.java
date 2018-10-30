@@ -6,14 +6,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.UUID;
+
+import me.relex.circleindicator.CircleIndicator;
 
 public class StudentInterface extends AppCompatActivity {
     private final int REQ_CODE = 915;
@@ -30,9 +33,8 @@ public class StudentInterface extends AppCompatActivity {
     private TextView textViewTitle;
     private TextView textViewInstructions;
 
-    private Button prevImageButton;
-    private Button nextImageButton;
-    private ImageView imageView;
+    ViewPager viewPager;
+    CircleIndicator indicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +51,11 @@ public class StudentInterface extends AppCompatActivity {
         textViewTitle = findViewById(R.id.textTitle);
         textViewInstructions = findViewById(R.id.textInstructions);
 
-        prevImageButton = findViewById(R.id.buttonLeft);
-        nextImageButton = findViewById(R.id.buttonRight);
-        imageView = findViewById(R.id.imageInstructions);
-
         alarmCardId = AlarmCardManager.readAlarmCardId();
         cardManager = new CardManager((UUID) getIntent().getExtras().get("ENTRY"));
+
+        viewPager = findViewById(R.id.pager);
+        indicator = findViewById(R.id.indicator);
 
         updateControls();
 
@@ -114,29 +115,11 @@ public class StudentInterface extends AppCompatActivity {
                 cancelAlarm();
             }
         });
-
-        prevImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-            ImageUtil.setImage(imageView, cardManager.getCurrentCard().getPrevImage());
-            updateControls();
-            }
-        });
-
-        nextImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-            ImageUtil.setImage(imageView, cardManager.getCurrentCard().getNextImage());
-            updateControls();
-            }
-        });
     }
 
     private void updateControls(){
         prevCardButton.setEnabled(cardManager.hasPrevCard());
         nextCardButton.setEnabled(cardManager.hasNextCard());
-        prevImageButton.setEnabled(cardManager.getCurrentCard() != null && cardManager.getCurrentCard().hasPrevImage());
-        nextImageButton.setEnabled(cardManager.getCurrentCard() != null && cardManager.getCurrentCard().hasNextImage());
         textViewInstructions.setEnabled(cardManager.getCurrentCard() != null);
         textViewTitle.setEnabled(cardManager.getCurrentCard() != null);
         textViewTime.setEnabled(cardManager.getCurrentCard() != null);
@@ -156,18 +139,10 @@ public class StudentInterface extends AppCompatActivity {
 
     private void updateCardInfoFields(Card card){
         if(card == null){
-            imageView.setImageResource(R.drawable.placeholder);
             textViewInstructions.setText("");
         }
         else {
-            Uri currentImageUri = card.getCurrentImage();
-            if(currentImageUri == null){
-                imageView.setImageResource(R.drawable.placeholder);
-            }
-            else{
-                ImageUtil.setImage(imageView, currentImageUri);
-            }
-
+            initImageSlider(card.getImageList());
             textViewTime.setText(card.getHours() + "H:" + card.getMinutes() + "M");
             textViewTitle.setText(card.getTitle());
             textViewInstructions.setText(card.getMessage());
@@ -198,5 +173,10 @@ public class StudentInterface extends AppCompatActivity {
         Intent intent = new Intent(this, Alarm.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), REQ_CODE, intent, 0);
         alarmManager.cancel(pendingIntent);
+    }
+
+    private void initImageSlider(ArrayList<Uri> images) {
+        viewPager.setAdapter(new ImageSliderAdapter(this, images));
+        indicator.setViewPager(viewPager);
     }
 }
