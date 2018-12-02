@@ -7,9 +7,9 @@
     <application
         android:allowBackup="true"
         android:name=".MainApplication"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/followme"
         android:label="Follow Me"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/followme_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar" >
         <activity android:name=".EnterProgram">
