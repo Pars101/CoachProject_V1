@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.mrleo.coachproect">
+    package="com.mrleo.coachproect">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
@@ -8,7 +8,7 @@
         android:allowBackup="true"
         android:name=".MainApplication"
         android:icon="@mipmap/ic_launcher"
-        android:label="Coach Project"
+        android:label="Follow Me"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar" >
@@ -28,7 +28,7 @@
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <receiver
-            android:name="com.example.mrleo.coachproect.Alarm"
+            android:name="com.mrleo.coachproect.Alarm"
             android:enabled="true"
             android:exported="true">
         </receiver>
